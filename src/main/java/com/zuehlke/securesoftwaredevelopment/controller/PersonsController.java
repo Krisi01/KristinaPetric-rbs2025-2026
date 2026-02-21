@@ -8,12 +8,13 @@ import com.zuehlke.securesoftwaredevelopment.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -33,14 +34,18 @@ public class PersonsController {
     }
 
     @GetMapping("/persons/{id}")
-    public String person(@PathVariable int id, Model model) {
+    public String person(@PathVariable int id, Model model, HttpSession session) {  //mora i ovde da se doda CSRF token jer i ovi endpointi renderuju person.html stranicu
+        String csrf = session.getAttribute("CSRF_TOKEN").toString();
+        model.addAttribute("CSRF_TOKEN", csrf);
         model.addAttribute("person", personRepository.get("" + id));
         model.addAttribute("username", userRepository.findUsername(id));
         return "person";
     }
 
     @GetMapping("/myprofile")
-    public String self(Model model, Authentication authentication) {
+    public String self(Model model, Authentication authentication, HttpSession session) {
+        String csrf = session.getAttribute("CSRF_TOKEN").toString();
+        model.addAttribute("CSRF_TOKEN", csrf);
         User user = (User) authentication.getPrincipal();
         model.addAttribute("person", personRepository.get("" + user.getId()));
         model.addAttribute("username", userRepository.findUsername(user.getId()));
@@ -56,14 +61,20 @@ public class PersonsController {
     }
 
     @PostMapping("/update-person")
-    public String updatePerson(Person person, String username) {
+    public String updatePerson(Person person, String username, HttpSession session, @RequestParam("csrfToken") String csrfToken) throws AccessDeniedException {
+        String csrf = session.getAttribute("CSRF_TOKEN").toString();
+        if(!csrf.equals(csrfToken)) {
+            throw new AccessDeniedException("You are not authorized to perform this action!");
+        }
         personRepository.update(person);
         userRepository.updateUsername(Integer.parseInt(person.getId()), username);
         return "redirect:/persons/" + person.getId();
     }
 
     @GetMapping("/persons")
-    public String persons(Model model) {
+    public String persons(Model model, HttpSession session) {
+        String csrf = session.getAttribute("CSRF_TOKEN").toString();
+        model.addAttribute("CSRF_TOKEN", csrf);
         model.addAttribute("persons", personRepository.getAll());
         return "persons";
     }
