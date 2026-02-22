@@ -39,9 +39,9 @@
 
             <tbody id="hotelsTableContent">
             <tr th:each="hotel : ${hotels}">
-                <td th:utext="${hotel.id}"></td>
-                <td th:utext="${hotel.name}"></td>
-                <td th:utext="${hotel.cityName}"></td>
+                <td th:text="${hotel.id}"></td>
+                <td th:text="${hotel.name}"></td>
+                <td th:text="${hotel.cityName}"></td>
                 <td><a th:href="@{/hotels(id=${hotel.id})}" sec:authorize="hasAuthority('VIEW_HOTEL')">Details</a></td>
             </tr>
             </tbody>
@@ -71,12 +71,15 @@
             const template = document.getElementById('row-template');
             const row = document.importNode(template.content, true);
             const tds = row.querySelectorAll('td');
-
-            tds[0].innerHTML = hotel.id;
-            tds[1].innerHTML = hotel.name;
+            tds[0].textContent = hotel.id;
+            tds[1].textContent = hotel.name;
             tds[2].textContent = hotel.cityName;
             if (canViewPerson) {
-                tds[3].textContent = '<a href="/hotels?id=${hotel.id}">Details</a>';
+                const a = document.createElement('a');
+                a.href = `/hotels?id=${encodeURIComponent(hotel.id)}`;
+                a.textContent = 'Details';
+                tds[3].innerHTML = '';
+                tds[3].appendChild(a);
             } else {
                 tds[3].textContent = '';
             }
@@ -91,7 +94,7 @@
 
         function updateSearchTerm(searchQuery) {
             const searchTerm = document.getElementById('searchTerm');
-            searchTerm.innerHTML = searchQuery;
+            searchTerm.textContent = searchQuery;
             searchTerm.parentElement.classList.remove('invisible');
         }
 
