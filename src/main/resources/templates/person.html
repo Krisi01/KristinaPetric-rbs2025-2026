@@ -9,7 +9,7 @@
     <title>Profile</title>
 </head>
 <body>
-<div layout:fragment="content">
+<div layout:fragment="content" sec:authorize="hasAuthority('VIEW_MY_PROFILE')">
     <h1>Profile</h1>
     <div class="row">
         <form method="POST" action="/update-person" class="col-5">
@@ -36,11 +36,11 @@
     </div>
 
 
-    <div class="mt-2">
-        <button type="submit" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Delete User</button>
+    <div class="mt-2" sec:authorize="hasAuthority('VIEW_MY_PROFILE')">
+        <button type="submit" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" >Delete User</button>
     </div>
 
-    <div class="modal" tabindex="-1" role="dialog" id="deleteModal">
+    <div class="modal" tabindex="-1" role="dialog" id="deleteModal" sec:authorize="hasAuthority('VIEW_MY_PROFILE')">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -62,13 +62,18 @@
 
     <script>
         window.addEventListener('load', function() {
-            document.getElementById('deleteUser').addEventListener('click', function () {
-                const personId = document.getElementById('id').value;
+            const deleteBtn = document.getElementById('deleteUser');
+            if (!deleteBtn) return;
 
-                fetch('/persons/' +  + personId, {
-                    method: 'DELETE'
-                }).then(function() { window.location.href = '/persons'; });
-            });
+            if(document.getElementById('deleteUser')) {
+                document.getElementById('deleteUser').addEventListener('click', function () {
+                    const personId = document.getElementById('id').value;
+
+                    fetch('/persons/' + personId, {
+                        method: 'DELETE'
+                    }).then(function() { window.location.href = '/persons'; });
+                });
+            }
         });
     </script>
 </div>

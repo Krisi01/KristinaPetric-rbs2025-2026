@@ -9,11 +9,11 @@
     <title>Create Reservation</title>
 </head>
 <body>
-<div layout:fragment="content">
+<div layout:fragment="content" sec:authorize="hasAuthority('CREATE_RESERVATION')">
     <h1>Create reservation</h1>
 
     <div class="row" th:unless="${created == true}">
-        <form id="reservationForm" class="col-5" method="POST" th:action="@{/reservations/create}">
+        <form id="reservationForm" class="col-5" method="POST" th:action="@{/reservations/create}" >
             <div class="form-group">
                 <input type="hidden" id="hotelId" name="hotelId" class="form-control" th:value="${hotel.id}"/>
 
@@ -64,11 +64,11 @@
         </form>
     </div>
 
-    <div class="text-success" th:if="${created == true}">
+    <div class="text-success" th:if="${created == true}" >
         Reservation successfully created!
     </div>
 
-    <div class="text-danger" th:if="${createError == true}">
+    <div class="text-danger" th:if="${createError == true}" >
         Sorry, reservation could not be created. Please try again.
     </div>
 </div>

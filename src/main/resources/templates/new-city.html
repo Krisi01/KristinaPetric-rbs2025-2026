@@ -10,9 +10,9 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <h1>New city</h1>
+    <h1 sec:authorize="hasAuthority('CREATE_CITY')">New city</h1>
 
-    <form id="cityForm" class="col-5" method="POST" th:action="@{/cities/create}">
+    <form id="cityForm" class="col-5" method="POST" th:action="@{/cities/create}" sec:authorize="hasAuthority('CREATE_CITY')">
         <div class="form-group">
 
             <label for="countryId">Country</label>

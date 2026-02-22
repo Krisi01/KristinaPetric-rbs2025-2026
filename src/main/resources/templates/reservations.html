@@ -2,7 +2,7 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+      layout:decorate="~{layout}" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -14,7 +14,7 @@
 <div layout:fragment="content" class="container">
     <h1>Reservations</h1>
 
-    <h2 class="mt-4">My reservations</h2>
+    <h2 class="mt-4" >My reservations</h2>
 
     <table class="table table-striped">
         <thead>
@@ -53,9 +53,9 @@
 
     <hr class="mt-4 mb-4"/>
 
-    <h2>All reservations</h2>
+    <h2 sec:authorize="hasAuthority('VIEW_RESERVATION')"> All reservations</h2>
 
-    <table class="table table-striped" th:if="${allReservations != null && !#lists.isEmpty(allReservations)}">
+    <table class="table table-striped" th:if="${allReservations != null && !#lists.isEmpty(allReservations)}" sec:authorize="hasAuthority('VIEW_RESERVATION')">
         <thead>
         <tr>
             <th>#</th>

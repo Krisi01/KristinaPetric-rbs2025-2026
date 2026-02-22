@@ -9,7 +9,7 @@
     <title>Users</title>
 </head>
 <body>
-<div layout:fragment="content">
+<div layout:fragment="content" sec:authorize="hasAuthority('VIEW_PERSONS_LIST')">
     <h1>Users</h1>
 
     <div class="input-group">
@@ -36,11 +36,17 @@
             <td th:text="${person.firstName}"></td>
             <td th:text="${person.lastName}"></td>
             <td th:text="${person.email}"></td>
-            <td><a th:href="@{/persons/{id}(id=${person.id})}">View profile</a></td>
+            <td><a th:href="@{/persons/{id}(id=${person.id})}" sec:authorize="hasAuthority('VIEW_PERSON')">View profile</a></td>
         </tr>
         </tbody>
     </table>
 
+    <script sec:authorize="hasAuthority('VIEW_PERSON')">
+        const canViewPerson = true;
+    </script>
+    <script sec:authorize="!hasAuthority('VIEW_PERSON')">
+        const canViewPerson = false;
+    </script>
     <script>
         window.addEventListener('load', function() {
             let search = function () {
@@ -67,7 +73,11 @@
                             tdElement.innerHTML = person.email;
                             tableRowElement.appendChild(tdElement);
                             tdElement = document.createElement("td");
-                            tdElement.innerHTML = '<a href="/persons/' + person.id + '">View profile</a>';
+                            if (canViewPerson) {
+                                tdElement.innerHTML = '<a href="/persons/' + person.id + '">View profile</a>';
+                            } else {
+                                tdElement.textContent = '';
+                            }
                             tableRowElement.appendChild(tdElement);
 
                             tableContent.appendChild(tableRowElement);
@@ -92,5 +102,8 @@
     </script>
 </div>
 
+<div sec:authorize="!hasAuthority('VIEW_PERSONS_LIST')" class="alert alert-warning">
+    You do not have access for users list!
+</div>
 </body>
 </html>

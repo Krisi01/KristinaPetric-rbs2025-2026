@@ -10,9 +10,9 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <h1>New country</h1>
+    <h1 sec:authorize="hasAuthority('CREATE_COUNTRY')">New country</h1>
 
-    <form id="countryForm" class="col-5" method="POST" th:action="@{/countries/create}">
+    <form id="countryForm" class="col-5" method="POST" th:action="@{/countries/create}" sec:authorize="hasAuthority('CREATE_COUNTRY')">
         <div class="form-group">
             <label for="name">Country name</label>
             <input type="text" id="name" name="name" class="form-control"/>
@@ -51,24 +51,27 @@
     </table>
 
     <script>
-        document.getElementById("countryForm").addEventListener("submit", function (event) {
-            const name = document.getElementById("name").value.trim();
+        const countryForm = document.getElementById("countryForm");
+        if(countryForm) {
+            document.getElementById("countryForm").addEventListener("submit", function (event) {
+                const name = document.getElementById("name").value.trim();
 
-            let isValid = true;
+                let isValid = true;
 
-            if (name.length < 2 || name.length > 100) {
-                const nameError = document.getElementById("nameError");
-                nameError.style.display = "block";
-                nameError.textContent = "Name must be between 2 and 100 characters.";
-                isValid = false;
-            } else {
-                document.getElementById("nameError").style.display = "none";
-            }
+                if (name.length < 2 || name.length > 100) {
+                    const nameError = document.getElementById("nameError");
+                    nameError.style.display = "block";
+                    nameError.textContent = "Name must be between 2 and 100 characters.";
+                    isValid = false;
+                } else {
+                    document.getElementById("nameError").style.display = "none";
+                }
 
-            if (!isValid) {
-                event.preventDefault();
-            }
-        });
+                if (!isValid) {
+                    event.preventDefault();
+                }
+            });
+        }
     </script>
 </div>
 </body>

@@ -9,7 +9,10 @@ import com.zuehlke.securesoftwaredevelopment.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,12 +42,21 @@ public class ReservationController {
 
     @GetMapping("/reservations/view")
     public String view(Model model, Authentication authentication) {
-        List<Reservation> allReservations = reservationRepository.getAll();
-
         User user = (User) authentication.getPrincipal();
-        Integer userId = user.getId();
-        List<Reservation> userReservations = reservationRepository.forUser(userId);
+        boolean hasViewPermission = false;
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            if ("VIEW_RESERVATION".equals(authority.getAuthority())) {
+                hasViewPermission = true;
+                break;
+            }
+        }
+        List<Reservation> allReservations = null;
+        if(hasViewPermission) {
+            allReservations = reservationRepository.getAll();
+        }
 
+        Integer userId = user.getId();
+        List<Reservation> userReservations = reservationRepository.forUser(userId); //rezervacije se vec loguju za trenutnog usera
         model.addAttribute("allReservations", allReservations);
         model.addAttribute("userReservations", userReservations);
 
@@ -70,6 +82,7 @@ public class ReservationController {
     }
 
     @PostMapping("/reservations/create")
+    @PreAuthorize("hasAuthority('CREATE_RESERVATION')")
     public String createReservation(
             @RequestParam Integer hotelId,
             @RequestParam Integer roomTypeId,

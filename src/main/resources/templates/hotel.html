@@ -9,7 +9,7 @@
     <title>Hotel Details</title>
 </head>
 <body>
-<div layout:fragment="content">
+<div layout:fragment="content" sec:authorize="hasAuthority('VIEW_HOTEL')">
     <h1>Hotel details</h1>
 
     <div class="row">
@@ -40,11 +40,11 @@
                 <label>Rating:</label>
                 <b><label th:text="${averageRating}"></label></b>
             </div>
-            <div class="form-group">
+            <div class="form-group" sec:authorize="hasAuthority('RATE_HOTEL')">
                 <label>My rating:</label>
                 <b><label th:text="${userRating}"></label></b>
             </div>
-            <div class="form-group">
+            <div class="form-group" sec:authorize="hasAuthority('RATE_HOTEL')">
                 <input type="radio" id="1" name="rating" value="1">
                 <label for="1">1</label>
                 <input type="radio" id="2" name="rating" value="2">
@@ -60,7 +60,7 @@
         </form>
     </div>
     <div class="mt-2 mb-2">
-        <a th:href="@{'/reservations/new/' + ${hotel.id}}">Create a reservation</a>
+        <a th:href="@{'/reservations/new/' + ${hotel.id}}" sec:authorize="hasAuthority('CREATE_RESERVATION')">Create a reservation</a>
     </div>
 
     <div class="mt-2 mb-2">
@@ -72,6 +72,8 @@
     </script>
     <script>
         window.addEventListener('load', function () {
+            const rateBtn = document.getElementById("rateHotel");
+            if (!rateBtn) return; // znaci da je dugme skriveno i korisnik uopste ni ne treba da menja rating
 
             document.getElementById("rateHotel").addEventListener("click", function () {
                 const rating = document.querySelector('input[name="rating"]:checked').value;

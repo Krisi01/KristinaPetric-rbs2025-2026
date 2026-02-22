@@ -12,7 +12,7 @@
 <div layout:fragment="content">
     <h1>Hotels</h1>
     <div class="container">
-        <div class="input-group mb-3">
+        <div class="input-group mb-3" sec:authorize="hasAuthority('VIEW_HOTEL_LIST')">
             <input type="text" id="searchQuery" class="form-control">
             <div class="input-group-append">
                 <button class="btn btn-outline-primary" id="hotelSearchButton" type="button" onclick="search()">
@@ -26,13 +26,13 @@
             Sorry, we are facing some problems! Please try again later.
         </p>
 
-        <table class="table">
+        <table class="table" sec:authorize="hasAuthority('VIEW_HOTEL_LIST')">
             <thead>
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">City</th>
-                <th scope="col">Details</th>
+                <th scope="col" sec:authorize="hasAuthority('VIEW_HOTEL')">Details</th>
                 <th></th>
             </tr>
             </thead>
@@ -42,12 +42,12 @@
                 <td th:utext="${hotel.id}"></td>
                 <td th:utext="${hotel.name}"></td>
                 <td th:utext="${hotel.cityName}"></td>
-                <td><a th:href="@{/hotels(id=${hotel.id})}">Details</a></td>
+                <td><a th:href="@{/hotels(id=${hotel.id})}" sec:authorize="hasAuthority('VIEW_HOTEL')">Details</a></td>
             </tr>
             </tbody>
         </table>
 
-        <a href="/hotels/new-hotel">Add Hotel</a>
+        <a href="/hotels/new-hotel" sec:authorize="hasAuthority('CREATE_HOTEL')">Add Hotel</a>
     </div>
 
     <template id="row-template">
@@ -59,6 +59,13 @@
         </tr>
     </template>
 
+
+    <script sec:authorize="hasAuthority('VIEW_HOTEL')">
+        const canViewPerson = true;
+    </script>
+    <script sec:authorize="!hasAuthority('VIEW_HOTEL')">
+        const canViewPerson = false;
+    </script>
     <script>
         function addRow(hotel) {
             const template = document.getElementById('row-template');
@@ -68,8 +75,11 @@
             tds[0].innerHTML = hotel.id;
             tds[1].innerHTML = hotel.name;
             tds[2].textContent = hotel.cityName;
-            tds[3].textContent = `<a href="/hotels?id=${hotel.id}">Details</a>`;
-
+            if (canViewPerson) {
+                tds[3].textContent = '<a href="/hotels?id=${hotel.id}">Details</a>';
+            } else {
+                tds[3].textContent = '';
+            }
             const tbody = document.querySelector('#hotelsTableContent');
             tbody.appendChild(row);
         }
